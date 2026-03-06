@@ -17,6 +17,8 @@ from src.duckduckgo.fetcher import WebContentFetcher
 from starlette.applications import Starlette
 from starlette.routing import Mount
 
+from fastapi.responses import JSONResponse
+
 load_dotenv(override=True)
 
 MAX_RESULTS = int(os.getenv('MAX_RESULTS', '5'))
@@ -36,8 +38,8 @@ searcher = DuckDuckGoSearcher()
 fetcher = WebContentFetcher()
 
 @mcp.custom_route("/actuator/health", methods=["GET"])
-async def health():
-    return {"status":"ok"}
+async def health(request):
+    return JSONResponse({'status':'ok'})
 
 app = Starlette(
     routes = [
@@ -88,4 +90,4 @@ async def fetch_content(
     )
 
 
-uvicorn.run(mcp, host="0.0.0.0", port=PORT)
+uvicorn.run(app, host="0.0.0.0", port=PORT)
