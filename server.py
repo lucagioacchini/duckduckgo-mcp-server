@@ -61,7 +61,7 @@ app = Starlette(
 @mcp.tool()
 async def search(
     query: str = Field(..., description="The search query string") 
-) -> str:
+) -> types.TextContent:
     """
     Search DuckDuckGo and return formatted results.
     """
@@ -81,7 +81,7 @@ async def search(
 @mcp.tool()
 async def fetch_content(
     url: str = Field(..., description='The webpage URL to fetch content from')
-) -> str:
+) -> types.TextContent:
     """Fetch and parse content from a webpage URL.
     """
     try:
