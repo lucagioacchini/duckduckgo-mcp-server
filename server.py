@@ -14,6 +14,9 @@ import mcp.types as types
 from src.duckduckgo.searcher import DuckDuckGoSearcher
 from src.duckduckgo.fetcher import WebContentFetcher
 
+from starlette.applications import Starlette
+from starlette.routing import Mount
+
 load_dotenv(override=True)
 
 MAX_RESULTS = int(os.getenv('MAX_RESULTS', '5'))
@@ -31,6 +34,19 @@ mcp = FastMCP(
 
 searcher = DuckDuckGoSearcher()
 fetcher = WebContentFetcher()
+
+@mcp.custom_route("/actuator/health", methods=["GET"])
+async def health():
+    return {"status":"ok"}
+
+app = Starlette(
+    routes = [
+        Mount(
+            path="/",
+            app=mcp.streamable_http_app()
+        )
+    ]
+)
 
 @mcp.tool()
 async def search(
