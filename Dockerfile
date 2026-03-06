@@ -12,9 +12,7 @@ COPY . /app
 
 # Install Python dependencies
 RUN pip install --upgrade pip \
-    && pip install --no-cache-dir .
-
-# Expose port if needed (MCP uses stdio, so not required)
+    && pip install --no-cache-dir -e .
 
 # Run the MCP server
-CMD ["python", "-m", "duckduckgo_mcp_server.server"]
+CMD ["python", "server.py"]
