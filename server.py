@@ -60,14 +60,13 @@ app = Starlette(
 
 @mcp.tool()
 async def search(
-    query: str = Field(..., description="The search query string"), 
-    ctx: Context = Field(..., description="MCP context for logging"), 
+    query: str = Field(..., description="The search query string") 
 ) -> str:
     """
     Search DuckDuckGo and return formatted results.
     """
     try:
-        results = await searcher.search(query, ctx, max_results=MAX_RESULTS)
+        results = await searcher.search(query, max_results=MAX_RESULTS)
         result = searcher.format_results_for_llm(results)
     except Exception as e:
         traceback.print_exc(file=sys.stderr)
@@ -81,13 +80,12 @@ async def search(
 
 @mcp.tool()
 async def fetch_content(
-    url: str = Field(..., description='The webpage URL to fetch content from'),
-    ctx: Context = Field(..., description='MCP context for logging')
+    url: str = Field(..., description='The webpage URL to fetch content from')
 ) -> str:
     """Fetch and parse content from a webpage URL.
     """
     try:
-        result = await fetcher.fetch_and_parse(url, ctx)
+        result = await fetcher.fetch_and_parse(url)
     except Exception as e:
         traceback.print_exc(file=sys.stderr)
         raise

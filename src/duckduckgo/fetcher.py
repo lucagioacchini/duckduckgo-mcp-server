@@ -1,7 +1,6 @@
 import httpx
 import re
 
-from mcp.server.fastmcp import Context
 from bs4 import BeautifulSoup
 
 from utils.rate_limiter import RateLimiter
@@ -10,12 +9,11 @@ class WebContentFetcher:
     def __init__(self):
         self.rate_limiter = RateLimiter(requests_per_minute=20)
 
-    async def fetch_and_parse(self, url: str, ctx: Context) -> str:
+    async def fetch_and_parse(self, url: str) -> str:
         """Fetch and parse content from a webpage"""
         try:
             await self.rate_limiter.acquire()
 
-            await ctx.info(f"Fetching content from: {url}")
 
             async with httpx.AsyncClient() as client:
                 response = await client.get(
@@ -50,17 +48,11 @@ class WebContentFetcher:
             if len(text) > 8000:
                 text = text[:8000] + "... [content truncated]"
 
-            await ctx.info(
-                f"Successfully fetched and parsed content ({len(text)} characters)"
-            )
             return text
 
         except httpx.TimeoutException:
-            await ctx.error(f"Request timed out for URL: {url}")
             return "Error: The request timed out while trying to fetch the webpage."
         except httpx.HTTPError as e:
-            await ctx.error(f"HTTP error occurred while fetching {url}: {str(e)}")
             return f"Error: Could not access the webpage ({str(e)})"
         except Exception as e:
-            await ctx.error(f"Error fetching content from {url}: {str(e)}")
             return f"Error: An unexpected error occurred while fetching the webpage ({str(e)})"

@@ -3,7 +3,6 @@ import httpx
 import traceback
 import sys
 
-from mcp.server.fastmcp import Context
 from bs4 import BeautifulSoup
 from typing import List
 
@@ -36,7 +35,7 @@ class DuckDuckGoSearcher:
         return "\n".join(output)
 
     async def search(
-        self, query: str, ctx: Context, max_results: int = 10
+        self, query: str, max_results: int = 10
     ) -> List[SearchResult]:
         try:
             # Apply rate limiting
@@ -49,8 +48,6 @@ class DuckDuckGoSearcher:
                 "kl": "",
             }
 
-            await ctx.info(f"Searching DuckDuckGo for: {query}")
-
             async with httpx.AsyncClient() as client:
                 response = await client.post(
                     self.BASE_URL, data=data, headers=self.HEADERS, timeout=30.0
@@ -60,7 +57,6 @@ class DuckDuckGoSearcher:
             # Parse HTML response
             soup = BeautifulSoup(response.text, "html.parser")
             if not soup:
-                await ctx.error("Failed to parse HTML response")
                 return []
 
             results = []
@@ -99,16 +95,12 @@ class DuckDuckGoSearcher:
                 if len(results) >= max_results:
                     break
 
-            await ctx.info(f"Successfully found {len(results)} results")
             return results
 
         except httpx.TimeoutException:
-            await ctx.error("Search request timed out")
             return []
         except httpx.HTTPError as e:
-            await ctx.error(f"HTTP error occurred: {str(e)}")
             return []
         except Exception as e:
-            await ctx.error(f"Unexpected error during search: {str(e)}")
             traceback.print_exc(file=sys.stderr)
             return []
