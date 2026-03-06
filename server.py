@@ -19,10 +19,17 @@ from starlette.routing import Mount
 
 from fastapi.responses import JSONResponse
 
+from contextlib import asynccontextmanager
+
 load_dotenv(override=True)
 
 MAX_RESULTS = int(os.getenv('MAX_RESULTS', '5'))
 PORT = int(os.getenv('PORT', '8080'))
+
+@asynccontextmanager
+async def lifespan(app: FastMCP):
+    async with mcp.session_manager.run():
+        yield
 
 # Initialize FastMCP server
 mcp = FastMCP(
@@ -47,7 +54,8 @@ app = Starlette(
             path="/",
             app=mcp.streamable_http_app()
         )
-    ]
+    ],
+    lifespan=lifespan
 )
 
 @mcp.tool()
